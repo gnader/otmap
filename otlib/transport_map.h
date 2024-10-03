@@ -24,49 +24,46 @@
 namespace otmap
 {
 
-class BVH2D;
+    class BVH2D;
 
-class TransportMap
-{
-public:
+    class TransportMap
+    {
+    public:
+        TransportMap(std::shared_ptr<surface_mesh::Surface_mesh> origin_mesh,
+                     std::shared_ptr<surface_mesh::Surface_mesh> fwd_mesh,
+                     std::shared_ptr<Eigen::VectorXd> density);
+        TransportMap(const TransportMap &other) = default;
 
-  TransportMap( std::shared_ptr<surface_mesh::Surface_mesh> origin_mesh,
-                std::shared_ptr<surface_mesh::Surface_mesh> fwd_mesh,
-                std::shared_ptr<Eigen::VectorXd> density);
-  TransportMap(const TransportMap& other) = default;
+        ~TransportMap();
 
-  ~TransportMap();
+        /** this function must be called at least once before calling inv/inv_fast */
+        void init_inverse() const;
 
-  /** this function must be called at least once before calling inv/inv_fast */
-  void init_inverse() const;
+        Eigen::Vector2d fwd(const Eigen::Vector2d &p) const;
+        Eigen::Vector2d inv(const Eigen::Vector2d &p) const { return inv_impl(p, false); }
+        Eigen::Vector2d inv_fast(const Eigen::Vector2d &p) const { return inv_impl(p, true); }
 
-  Eigen::Vector2d fwd(const Eigen::Vector2d& p) const;
-  Eigen::Vector2d inv(const Eigen::Vector2d& p) const { return inv_impl(p,false); }
-  Eigen::Vector2d inv_fast(const Eigen::Vector2d& p) const { return inv_impl(p,true); }
+        std::shared_ptr<surface_mesh::Surface_mesh> fwd_mesh_ptr() { return m_fwd_mesh; }
+        std::shared_ptr<Eigen::VectorXd> density_ptr() { return m_density; }
 
-  std::shared_ptr<surface_mesh::Surface_mesh> fwd_mesh_ptr() { return m_fwd_mesh; }
-  std::shared_ptr<Eigen::VectorXd> density_ptr() { return m_density; }
+        const surface_mesh::Surface_mesh &origin_mesh() const { return *m_origin_mesh; }
+        const surface_mesh::Surface_mesh &fwd_mesh() const { return *m_fwd_mesh; }
+        const Eigen::VectorXd &density() const { return *m_density; }
 
-  const surface_mesh::Surface_mesh& origin_mesh() const { return *m_origin_mesh; }
-  const surface_mesh::Surface_mesh& fwd_mesh() const { return *m_fwd_mesh; }
-  const Eigen::VectorXd& density() const { return *m_density; }
+    protected:
+        Eigen::Vector2d inv_impl(const Eigen::Vector2d &p, bool fast_mode) const;
 
+        std::shared_ptr<surface_mesh::Surface_mesh> m_origin_mesh;
+        std::shared_ptr<surface_mesh::Surface_mesh> m_fwd_mesh;
+        std::shared_ptr<Eigen::VectorXd> m_density;
+        mutable BVH2D *m_bvh;
+    };
 
-protected:
+    /** Inverts uniform mesh relative to a transport map */
+    void apply_inverse_map(const otmap::TransportMap &tmap,
+                           std::vector<Eigen::Vector2d> &points, /* in-out */
+                           int verbose_level = 2);
 
-  Eigen::Vector2d inv_impl(const Eigen::Vector2d& p, bool fast_mode) const;
-
-  std::shared_ptr<surface_mesh::Surface_mesh> m_origin_mesh;
-  std::shared_ptr<surface_mesh::Surface_mesh> m_fwd_mesh;
-  std::shared_ptr<Eigen::VectorXd> m_density;
-  mutable BVH2D* m_bvh;
-};
-
-/** Inverts uniform mesh relative to a transport map */
-void apply_inverse_map( const otmap::TransportMap& tmap,
-                        std::vector<Eigen::Vector2d> &points, /* in-out */
-                        int verbose_level = 2);
-
-double transport_cost(const surface_mesh::Surface_mesh &src_mesh, const surface_mesh::Surface_mesh &dst_mesh, const Eigen::VectorXd &density_per_face, Eigen::VectorXd *cost_per_face = 0);
+    double transport_cost(const surface_mesh::Surface_mesh &src_mesh, const surface_mesh::Surface_mesh &dst_mesh, const Eigen::VectorXd &density_per_face, Eigen::VectorXd *cost_per_face = 0);
 
 } // namespace otmap

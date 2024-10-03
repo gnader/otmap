@@ -28,100 +28,102 @@
 #include "surface_mesh/Surface_mesh.h"
 #include "transport_map.h"
 
-namespace otmap {
-
-enum struct BetaOpt {
-  Zero, ConjugateJacobian
-};
-
-struct SolverOptions
+namespace otmap
 {
-  BetaOpt beta = BetaOpt::ConjugateJacobian;
-  int max_iter = 1000;
-  double threshold = 1e-7;
-  double max_ratio = std::numeric_limits<double>::max();
-};
 
-class GridBasedTransportSolver
-{
-public:
-  GridBasedTransportSolver();
-  ~GridBasedTransportSolver();
+    enum struct BetaOpt
+    {
+        Zero,
+        ConjugateJacobian
+    };
 
-  /** adjust amount of debug info sent to std::cout */
-  inline void set_verbose_level(int v) { m_verbose_level = v; }
+    struct SolverOptions
+    {
+        BetaOpt beta = BetaOpt::ConjugateJacobian;
+        int max_iter = 1000;
+        double threshold = 1e-7;
+        double max_ratio = std::numeric_limits<double>::max();
+    };
 
-  /** Initializes the solver for the given grid size */
-  void init(int n);
+    class GridBasedTransportSolver
+    {
+    public:
+        GridBasedTransportSolver();
+        ~GridBasedTransportSolver();
 
-  /** solve for the given density */
-  TransportMap solve(Eigen::Ref<const Eigen::VectorXd> density, SolverOptions opt = SolverOptions());
+        /** adjust amount of debug info sent to std::cout */
+        inline void set_verbose_level(int v) { m_verbose_level = v; }
 
-protected:
+        /** Initializes the solver for the given grid size */
+        void init(int n);
 
-  typedef Eigen::Ref<const Eigen::VectorXd> ConstRefVector;
-  typedef Eigen::Ref<Eigen::VectorXd>       RefVector;
+        /** solve for the given density */
+        TransportMap solve(Eigen::Ref<const Eigen::VectorXd> density, SolverOptions opt = SolverOptions());
 
-  /** Assemble and factorize all operators */
-  void initialize_laplacian_solver();
-  
-  void adjust_density(Eigen::VectorXd& density, double max_ratio);
+    protected:
+        typedef Eigen::Ref<const Eigen::VectorXd> ConstRefVector;
+        typedef Eigen::Ref<Eigen::VectorXd> RefVector;
 
-  /** Computes the gradient of each vertex into vtx_grads using psi */
-  void compute_vertex_gradients(ConstRefVector psi, Eigen::MatrixX2d& vtx_grads) const;
+        /** Assemble and factorize all operators */
+        void initialize_laplacian_solver();
 
-  void compute_transport_cost(const Eigen::MatrixX2d& vtx_grads, Eigen::VectorXd& cost) const;
+        void adjust_density(Eigen::VectorXd &density, double max_ratio);
 
-  /** Computes the residual of psi */
-  double compute_residual(ConstRefVector psi, Eigen::Ref<Eigen::VectorXd> out) const;
+        /** Computes the gradient of each vertex into vtx_grads using psi */
+        void compute_vertex_gradients(ConstRefVector psi, Eigen::MatrixX2d &vtx_grads) const;
 
-  double compute_conjugate_jacobian_beta(ConstRefVector xk, ConstRefVector rkm1, ConstRefVector rk, ConstRefVector d_hat, ConstRefVector d_prev, double alpha) const;
+        void compute_transport_cost(const Eigen::MatrixX2d &vtx_grads, Eigen::VectorXd &cost) const;
 
-  void compute_1D_problem_parameters(ConstRefVector psi, ConstRefVector dir, RefVector a, RefVector b) const;
+        /** Computes the residual of psi */
+        double compute_residual(ConstRefVector psi, Eigen::Ref<Eigen::VectorXd> out) const;
 
-  double solve_1D_problem(ConstRefVector xk, ConstRefVector dir, ConstRefVector rk, double ek, RefVector xk1, RefVector rk1, double *palpha = 0) const;
+        double compute_conjugate_jacobian_beta(ConstRefVector xk, ConstRefVector rkm1, ConstRefVector rk, ConstRefVector d_hat, ConstRefVector d_prev, double alpha) const;
 
-  void print_debuginfo_iteration(int it, double alpha, double beta, ConstRefVector search_dir,
-                                 double l2err, ConstRefVector residual,
-                                 double t_linearsolve, double t_beta, double t_linesearch) const;
+        void compute_1D_problem_parameters(ConstRefVector psi, ConstRefVector dir, RefVector a, RefVector b) const;
 
-  /** helper functions */
-  inline int pb_size() const { return m_pb_size; }
-  inline int make_face_index(int i, int j) const { return j+i*m_gridSize     ; }
-  inline int make_vtx_index (int i, int j) const { return j+i*(m_gridSize+1) ; }
+        double solve_1D_problem(ConstRefVector xk, ConstRefVector dir, ConstRefVector rk, double ek, RefVector xk1, RefVector rk1, double *palpha = 0) const;
 
-protected:
-  // the working quad mesh
-  std::shared_ptr<surface_mesh::Surface_mesh> m_mesh;
+        void print_debuginfo_iteration(int it, double alpha, double beta, ConstRefVector search_dir,
+                                       double l2err, ConstRefVector residual,
+                                       double t_linearsolve, double t_beta, double t_linesearch) const;
 
-  // the input density
-  const Eigen::VectorXd* m_input_density;
+        /** helper functions */
+        inline int pb_size() const { return m_pb_size; }
+        inline int make_face_index(int i, int j) const { return j + i * m_gridSize; }
+        inline int make_vtx_index(int i, int j) const { return j + i * (m_gridSize + 1); }
 
-  double m_element_area; // the initial area of the elements
-  int m_gridSize;
-  int m_pb_size;
+    protected:
+        // the working quad mesh
+        std::shared_ptr<surface_mesh::Surface_mesh> m_mesh;
 
-  // the pseudo-Laplacian matrix passed to the solver
-  Eigen::SparseMatrix<double> m_mat_L;
+        // the input density
+        const Eigen::VectorXd *m_input_density;
 
-  // precomputed Cholesky factorization of L
+        double m_element_area; // the initial area of the elements
+        int m_gridSize;
+        int m_pb_size;
+
+        // the pseudo-Laplacian matrix passed to the solver
+        Eigen::SparseMatrix<double> m_mat_L;
+
+        // precomputed Cholesky factorization of L
 #if HAS_CHOLMOD
-  typedef Eigen::CholmodDecomposition< Eigen::SparseMatrix<double> > LaplacianSolver;
+        typedef Eigen::CholmodDecomposition<Eigen::SparseMatrix<double>> LaplacianSolver;
 #else
-   typedef Eigen::SimplicialLDLT< Eigen::SparseMatrix<double> > LaplacianSolver;
+        typedef Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> LaplacianSolver;
 #endif
-  LaplacianSolver m_laplacian_solver;
+        LaplacianSolver m_laplacian_solver;
 
-  int m_verbose_level;
+        int m_verbose_level;
 
-  mutable Eigen::MatrixX2d m_cache_residual_vtx_grads;
-  mutable Eigen::VectorXd  m_cache_residual_fwd_area;
-  mutable Eigen::VectorXd  m_cache_beta_Jd, m_cache_beta_rk_eps;
+        mutable Eigen::MatrixX2d m_cache_residual_vtx_grads;
+        mutable Eigen::VectorXd m_cache_residual_fwd_area;
+        mutable Eigen::VectorXd m_cache_beta_Jd, m_cache_beta_rk_eps;
 
-  mutable Eigen::VectorXd  m_cache_1D_a;
-  mutable Eigen::VectorXd  m_cache_1D_b;
-  mutable Eigen::MatrixX2d m_cache_1D_g0;
-  mutable Eigen::MatrixX2d m_cache_1D_gd;
-};
+        mutable Eigen::VectorXd m_cache_1D_a;
+        mutable Eigen::VectorXd m_cache_1D_b;
+        mutable Eigen::MatrixX2d m_cache_1D_g0;
+        mutable Eigen::MatrixX2d m_cache_1D_gd;
+    };
 
 } // namespace otmap

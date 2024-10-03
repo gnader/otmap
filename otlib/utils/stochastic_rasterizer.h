@@ -12,10 +12,11 @@
 #include <surface_mesh/Surface_mesh.h>
 #include "transport_map.h"
 
-namespace otmap {
+namespace otmap
+{
 
-void sample_transportmap_to_image(const surface_mesh::Surface_mesh& mesh, const Eigen::VectorXi &sample_per_face, Eigen::MatrixXd& img);
+    void sample_transportmap_to_image(const surface_mesh::Surface_mesh &mesh, const Eigen::VectorXi &sample_per_face, Eigen::MatrixXd &img);
 
-void sample_transportmap_to_image(const surface_mesh::Surface_mesh& mesh, Eigen::MatrixXd& img, int sample_per_face = 100);
+    void sample_transportmap_to_image(const surface_mesh::Surface_mesh &mesh, Eigen::MatrixXd &img, int sample_per_face = 100);
 
 } // namespace otmap

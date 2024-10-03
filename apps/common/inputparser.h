@@ -14,12 +14,11 @@
 class InputParser
 {
 public:
-  InputParser(int& argc, char** argv);
+    InputParser(int &argc, char **argv);
 
-  int getCmdOption(const std::string& option, std::vector< std::string >& value) const;
-  bool cmdOptionExists(const std::string& option) const;
+    int getCmdOption(const std::string &option, std::vector<std::string> &value) const;
+    bool cmdOptionExists(const std::string &option) const;
 
 private:
-  std::vector< std::string > m_tokens;
+    std::vector<std::string> m_tokens;
 };
-

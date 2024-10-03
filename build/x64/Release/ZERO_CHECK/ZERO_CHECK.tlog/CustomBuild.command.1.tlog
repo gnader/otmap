@@ -1,0 +1,10 @@
+^E:\DEV\CODE\OTMAP\BUILD\CMAKEFILES\0D19439DE2B3C8F9CD51381EFE7418CF\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SE:/Dev/Code/otmap -BE:/Dev/Code/otmap/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file E:/Dev/Code/otmap/build/otmap.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

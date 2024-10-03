@@ -11,14 +11,16 @@
 #include <Eigen/Core>
 #include <surface_mesh/Surface_mesh.h>
 
-namespace otmap {
+namespace otmap
+{
 
-enum RasterImageOption {
-  RIO_PerVertexDensity,
-  RIO_PerFaceDensity
-};
+    enum RasterImageOption
+    {
+        RIO_PerVertexDensity,
+        RIO_PerFaceDensity
+    };
 
-void rasterize_image(const surface_mesh::Surface_mesh& mesh, const Eigen::VectorXd &density_per_Face, Eigen::MatrixXd& img, RasterImageOption opt = RIO_PerFaceDensity);
-void rasterize_image(const surface_mesh::Surface_mesh& mesh, Eigen::MatrixXd& img, RasterImageOption opt = RIO_PerFaceDensity);
+    void rasterize_image(const surface_mesh::Surface_mesh &mesh, const Eigen::VectorXd &density_per_Face, Eigen::MatrixXd &img, RasterImageOption opt = RIO_PerFaceDensity);
+    void rasterize_image(const surface_mesh::Surface_mesh &mesh, Eigen::MatrixXd &img, RasterImageOption opt = RIO_PerFaceDensity);
 
 } // namespace otmap
