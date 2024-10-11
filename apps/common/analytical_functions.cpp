@@ -304,7 +304,7 @@ double func(FuncName::Enum fn, const Eigen::Vector2d &p)
         val = brdf(p, Vector2d(-0.5, 0), 50, 3);
         break;
     case BRDF1:
-        val = brdf(p, Vector2d(-0.5, 0), 35, 4.5);
+        val = brdf(p, Vector2d(0.5, 0), 35, 4.5);
         break;
     case BRDF2:
         val = brdf(p, Vector2d(-0.5, 0), 23, 6.5);
