@@ -216,8 +216,8 @@ int main(int argc, char **argv)
                 double expected_mean = bilerp(alpha, beta, density_means[0], density_means[1], density_means[2], density_means[3]);
                 synthetize_and_save_image(res, filename, img_res, expected_mean, opts.use_inv);
 
-                if (opts.export_maps)
-                    res.write(std::string(opts.out_prefix).append("_alpha_map_").append(make_padded_string(i)).append("_").append(make_padded_string(j)).append(".off"));
+                // if (opts.export_maps)
+                res.write(std::string(opts.out_prefix).append("_alpha_map_").append(make_padded_string(i)).append("_").append(make_padded_string(j)).append(".off"));
 
                 std::cout << i * (opts.nsteps + 1) + j + 1 << "/" << (opts.nsteps + 1) * (opts.nsteps + 1) << "\r" << std::flush;
             }
@@ -234,8 +234,8 @@ int main(int argc, char **argv)
             double expected_mean = lerp(alpha, density_means[0], density_means[1]);
             synthetize_and_save_image(res, filename, img_res, expected_mean, opts.use_inv);
 
-            if (opts.export_maps)
-                res.write(std::string(opts.out_prefix).append("_alpha_map_").append(make_padded_string(i)).append(".off"));
+            // if (opts.export_maps)
+            res.write(std::string(opts.out_prefix).append("_alpha_map_").append(make_padded_string(i)).append(".off"));
 
             std::cout << i + 1 << "/" << (opts.nsteps + 1) << "\r" << std::flush;
         }
