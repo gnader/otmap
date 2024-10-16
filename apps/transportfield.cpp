@@ -14,6 +14,7 @@
 #include "otsolver_2dgrid.h"
 #include "common/otsolver_options.h"
 #include "utils/rasterizer.h"
+#include "utils/mesh_utils.h"
 #include "common/image_utils.h"
 #include "common/generic_tasks.h"
 
@@ -33,6 +34,7 @@ void output_usage()
     std::cout << " * -img_eps <value>    (default: 1e-5)" << std::endl;
     std::cout << " * -inv                use 1-img" << std::endl;
     std::cout << " * -export_maps        write maps as .off files" << std::endl;
+    std::cout << " * -res                the resolution of the transport map" << std::endl;
 
     CLI_OTSolverOptions::print_help();
 
@@ -46,6 +48,7 @@ struct CLIopts : CLI_OTSolverOptions
     std::string out_prefix;
 
     double img_eps;
+    int res;
     bool use_inv;
     bool export_maps;
 
@@ -55,6 +58,7 @@ struct CLIopts : CLI_OTSolverOptions
 
         out_prefix = "";
         img_eps = 1e-5;
+        res = -1;
         use_inv = false;
         export_maps = false;
 
@@ -90,6 +94,9 @@ struct CLIopts : CLI_OTSolverOptions
 
         if (args.cmdOptionExists("-export_maps"))
             export_maps = true;
+
+        if (args.getCmdOption("-res", value))
+            res = std::stoi(value[0]);
 
         return true;
     }
@@ -148,10 +155,16 @@ int main(int argc, char **argv)
     int img_res = input_densities[0].rows();
     std::cout << "Generate inverse maps...\n";
 
+    int res = opts.res == -1 ? img_res : opts.res;
+
     std::vector<double> density_means(tmaps.size());
     for (int k = 0; k < tmaps.size(); ++k)
     {
-        inv_maps[k] = tmaps[k].origin_mesh();
+        // inv_maps[k] = tmaps[k].origin_mesh();
+        Surface_mesh temp;
+        generate_quad_mesh(res, res, temp, true);
+        std::cout << res;
+        inv_maps[k] = temp;
         apply_inverse_map(tmaps[k], inv_maps[k].points(), opts.verbose_level);
         density_means[k] = input_densities[k].mean();
 
