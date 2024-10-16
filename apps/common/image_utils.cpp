@@ -81,6 +81,26 @@ void save_matrix_as_image(const char *filename, Ref<const MatrixXd> mat, double 
     save_image(filename, tmp);
 }
 
+void save_vectorfield_as_image(const char *filename, const std::vector<Eigen::Vector2d> &vfield, int resX, int resY)
+{
+    int w = resX;
+    int h = resY == -1 ? resX : resY;
+
+    cimg_library::CImg<double> temp(w, h, 1, 3, 0);
+    int n = vfield.size();
+    for (int k = 0; k < n; ++k)
+    {
+        int i = k / h;
+        int j = k % w;
+
+        temp(j, i, 0, 0) = vfield[k].x() * 255.;
+        temp(j, i, 0, 1) = vfield[k].y() * 255.;
+        temp(j, i, 0, 2) = 0.;
+    }
+
+    temp.save(filename);
+}
+
 void gaussian_blur(Ref<const MatrixXd> in, Ref<MatrixXd> out, int kernel_size)
 {
     // mirror border conditions

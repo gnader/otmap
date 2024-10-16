@@ -27,6 +27,8 @@ void save_image(const char *filename, Eigen::Ref<const Eigen::MatrixXd> img);
 // Save a matrix as a 2D gray level image normalized to 0-1 (if max<0) or rescaled to max otherwise:
 void save_matrix_as_image(const char *filename, Eigen::Ref<const Eigen::MatrixXd> img, double max = -1.);
 
+void save_vectorfield_as_image(const char *filename, const std::vector<Eigen::Vector2d> &vfeild, int resX, int resY = -1);
+
 // Image operations --------
 
 void gaussian_blur(Eigen::Ref<const Eigen::MatrixXd> in, Eigen::Ref<Eigen::MatrixXd> out, int kernel_size = 5);
